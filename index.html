@@ -2,10 +2,9 @@
 <html lang="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Spill - Enkeltfil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake Mobil & PC</title>
     <style>
-        /* CSS - Designet av spillet */
         body {
             display: flex;
             flex-direction: column;
@@ -15,64 +14,97 @@
             margin: 0;
             background-color: #1a1a1a;
             color: #4CAF50;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: sans-serif;
+            touch-action: manipulation; /* Hindrer zooming ved trykking */
         }
         canvas {
             border: 4px solid #4CAF50;
             background-color: #000;
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+            max-width: 90vw;
+            max-height: 70vh;
         }
         .info {
             text-align: center;
             margin-top: 10px;
+        }
+        .controls-hint {
+            font-size: 0.8em;
+            color: #888;
         }
     </style>
 </head>
 <body>
 
     <h1>SNAKE</h1>
+    <h2 id="scoreText">Poeng: 0</h2>
+    
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     
     <div class="info">
-        <h2 id="scoreText">Poeng: 0</h2>
-        <p>Styr med piltastene på tastaturet</p>
+        <p class="controls-hint">Trykk på kantene av spillet for å styre <br> eller bruk piltaster</p>
     </div>
 
     <script>
-        // JavaScript - Spillogikken
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const scoreElement = document.getElementById("scoreText");
 
         let snake = [{x: 200, y: 200}, {x: 180, y: 200}, {x: 160, y: 200}];
         let foodX, foodY;
-        let dx = 20; // Bevegelse horisontalt
-        let dy = 0;  // Bevegelse vertikalt
+        let dx = 20; 
+        let dy = 0;
         let score = 0;
-        let changingDirection = false;
+        let gameRunning = true;
 
-        // Start spillet
+        // Start
         createFood();
         main();
 
-        document.addEventListener("keydown", changeDirection);
+        // Tastatur-styring
+        document.addEventListener("keydown", (e) => {
+            const up = 38, down = 40, left = 37, right = 39;
+            if (e.keyCode === left && dx === 0) { dx = -20; dy = 0; }
+            if (e.keyCode === up && dy === 0) { dx = 0; dy = -20; }
+            if (e.keyCode === right && dx === 0) { dx = 20; dy = 0; }
+            if (e.keyCode === down && dy === 0) { dx = 0; dy = 20; }
+        });
+
+        // Touch-styring (Trykk på skjermen)
+        canvas.addEventListener("touchstart", function(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            const touchY = e.touches[0].clientY - rect.top;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Logikk: Sjekker om man trykker mer til høyre enn senter, osv.
+            if (Math.abs(touchX - centerX) > Math.abs(touchY - centerY)) {
+                if (touchX > centerX && dx === 0) { dx = 20; dy = 0; } // Høyre
+                else if (touchX < centerX && dx === 0) { dx = -20; dy = 0; } // Venstre
+            } else {
+                if (touchY > centerY && dy === 0) { dx = 0; dy = 20; } // Ned
+                else if (touchY < centerY && dy === 0) { dx = 0; dy = -20; } // Opp
+            }
+        }, {passive: false});
 
         function main() {
             if (didGameEnd()) {
                 ctx.fillStyle = "white";
                 ctx.font = "30px Arial";
                 ctx.fillText("GAME OVER", 110, 200);
+                ctx.fillText("Trykk for å starte på nytt", 50, 250);
+                gameRunning = false;
                 return;
             }
 
-            changingDirection = false;
-            setTimeout(function onTick() {
+            setTimeout(function() {
                 clearCanvas();
                 drawFood();
                 advanceSnake();
                 drawSnake();
                 main();
-            }, 100); // Hastighet (lavere tall = raskere spill)
+            }, 100);
         }
 
         function clearCanvas() {
@@ -82,17 +114,14 @@
 
         function drawSnake() {
             snake.forEach((part, index) => {
-                ctx.fillStyle = index === 0 ? "#4CAF50" : "#2E7D32"; // Hodet er lysere
-                ctx.strokeStyle = "black";
-                ctx.fillRect(part.x, part.y, 20, 20);
-                ctx.strokeRect(part.x, part.y, 20, 20);
+                ctx.fillStyle = index === 0 ? "#4CAF50" : "#2E7D32";
+                ctx.fillRect(part.x, part.y, 18, 18); // Litt mellomrom mellom leddene
             });
         }
 
         function advanceSnake() {
             const head = {x: snake[0].x + dx, y: snake[0].y + dy};
             snake.unshift(head);
-
             if (snake[0].x === foodX && snake[0].y === foodY) {
                 score += 10;
                 scoreElement.innerHTML = "Poeng: " + score;
@@ -115,17 +144,10 @@
             foodY = Math.floor(Math.random() * (canvas.height / 20)) * 20;
         }
 
-        function changeDirection(event) {
-            if (changingDirection) return;
-            changingDirection = true;
-            const keyPressed = event.keyCode;
-            const up = 38, down = 40, left = 37, right = 39;
-
-            if (keyPressed === left && dx === 0) { dx = -20; dy = 0; }
-            if (keyPressed === up && dy === 0) { dx = 0; dy = -20; }
-            if (keyPressed === right && dx === 0) { dx = 20; dy = 0; }
-            if (keyPressed === down && dy === 0) { dx = 0; dy = 20; }
-        }
+        // Restart ved klikk etter Game Over
+        canvas.addEventListener("click", () => {
+            if (!gameRunning) location.reload();
+        });
     </script>
 </body>
 </html>
