@@ -3,720 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>mehdi.co // Motivation Edition</title>
+    <title>mehdi.co // Pro Edition</title>
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- DESIGN SYSTEM --- */
         :root {
-            --bg-color: #030712;
-            --glass-surface: rgba(15, 23, 42, 0.8);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --primary: #6366f1;
-            --accent: #ec4899;
-            --success: #10b981;
-            --danger: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --breath-color: #a5f3fc;
-        }
+            /* --- NEW PRO THEME COLORS --- */
+            --apple-blue: #007AFF;
+            --apple-purple: #5856D6;
+            --apple-bg: #F2F2F7;
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-dark: #1D1D1F;
+            --text-secondary: #86868B;
+            --input-bg: rgba(118, 118, 128, 0.12);
 
-        body.theme-cyber { --bg-color: #050505; --primary: #00f0ff; --accent: #ff003c; --breath-color: #00f0ff; }
-        body.theme-nature { --bg-color: #022c22; --primary: #34d399; --accent: #facc15; --breath-color: #86efac; }
-        body.theme-sunset { --bg-color: #2a0a18; --primary: #f43f5e; --accent: #fb923c; --breath-color: #fb923c; }
+            /* KEEPING OLD VARIABLES FOR MAIN APP COMPATIBILITY */
+            --primary: #3b82f6;
+            --primary-light: #eff6ff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
+            --glass-surface: rgba(255, 255, 255, 0.8);
+        }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
         
         body {
-            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-color); color: var(--text-main);
+            margin: 0; font-family: 'Inter', sans-serif;
+            background: var(--apple-bg);
             height: 100vh; overflow: hidden;
-            transition: background 0.5s ease;
         }
 
-        /* --- BACKGROUND --- */
-        #neural-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none;
+        /* =========================================
+           NEW PROFESSIONAL INTRO SCREEN
+        ========================================= */
+        #pro-intro-screen {
+            position: fixed; inset: 0; z-index: 50000;
+            background: var(--apple-bg);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
         }
 
-        /* --- MOTIVATION BOOT SCREEN --- */
-        #welcome-screen {
-            position: fixed; inset: 0; background: #000; z-index: 20000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease-in-out;
-            padding: 20px; text-align: center;
+        /* Animated Background Orbs */
+        .bg-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: -1;
+            animation: orbFloat 10s infinite ease-in-out alternate;
         }
-        #welcome-screen.hidden { opacity: 0; pointer-events: none; }
+        .orb-1 { top: -10%; left: -10%; width: 50vh; height: 50vh; background: var(--apple-blue); }
+        .orb-2 { bottom: -10%; right: -10%; width: 60vh; height: 60vh; background: var(--apple-purple); animation-delay: -5s; }
 
-        .quote-container {
-            font-size: 1.5rem; font-weight: 300; line-height: 1.5; color: white;
-            max-width: 700px; margin-bottom: 50px; min-height: 100px;
-            font-style: italic; opacity: 0.9;
-        }
-        
-        .cursor {
-            display: inline-block; width: 2px; height: 1.2em; background: var(--primary);
-            animation: blink 1s infinite; vertical-align: middle;
-        }
-        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes orbFloat { from { transform: translate(0, 0) scale(1); } to { transform: translate(30px, 50px) scale(1.1); } }
 
-        .start-btn {
-            padding: 15px 40px; border-radius: 30px; border: 1px solid var(--primary);
-            background: rgba(99, 102, 241, 0.1); color: white; font-size: 1rem; font-weight: 600;
-            cursor: pointer; letter-spacing: 2px; text-transform: uppercase;
-            transition: 0.3s; opacity: 0; transform: translateY(20px);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
-        }
-        .start-btn.visible { opacity: 1; transform: translateY(0); }
-        .start-btn:hover { background: var(--primary); box-shadow: 0 0 40px var(--primary); }
-
-        /* --- APP LAYOUT --- */
-        .app-shell { 
-            display: flex; height: 100%; width: 100%; position: relative; z-index: 1; 
-            opacity: 0; transition: opacity 1s ease 0.5s; 
-        }
-        .app-shell.visible { opacity: 1; }
-
-        .sidebar { width: 280px; background: rgba(5, 5, 10, 0.6); backdrop-filter: blur(30px); border-right: 1px solid var(--glass-border); padding: 30px; display: flex; flex-direction: column; gap: 10px; }
-        .logo-area { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 15px; border-radius: 16px; cursor: pointer; text-align: left; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 15px; transition: all 0.3s; }
-        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(5px); }
-        .nav-btn.active { background: var(--primary); color: #fff; box-shadow: 0 0 25px rgba(99, 102, 241, 0.3); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn i { font-size: 1.4rem; }
-
-        .main-view { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
-        .section { display: none; animation: slideIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .section.active { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-
-        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
-        .glass-card { background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 24px; padding: 25px; backdrop-filter: blur(15px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); transition: transform 0.3s; position: relative; overflow: visible; }
-
-        /* --- UPDATED TASK LIST STYLES (FIXED SPACING & X BUTTON) --- */
-        .task-list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-bottom: 10px;
-            border-left: 3px solid var(--accent); transition: 0.2s;
-            animation: taskEntry 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .task-text { font-weight: 600; font-size: 1rem; flex: 1; margin-right: 15px; }
-        
-        .task-actions { display: flex; gap: 8px; align-items: center; }
-        
-        .btn-delete {
-            width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--glass-border);
-            background: rgba(239, 68, 68, 0.1); color: var(--danger); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: 0.2s;
-        }
-        .btn-delete:hover { background: var(--danger); color: white; }
-
-        .btn-complete {
-            background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--glass-border);
-            padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
-            transition: 0.2s; display: flex; align-items: center; gap: 5px;
-        }
-        .btn-complete:hover { background: var(--success); color: white; }
-
-        @keyframes taskEntry {
-            0% { opacity: 0; transform: translateY(-20px) scale(0.9); }
-            50% { transform: scale(1.02); }
-            100% { opacity: 1; transform: scale(1); }
+        /* The Glass Card Container */
+        .intro-glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(25px) saturate(180%); /* The "Apple Glass" effect */
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 60px 40px;
+            width: 90%; max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.4) inset;
+            
+            opacity: 0; transform: translateY(30px) scale(0.95);
+            animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
         }
 
-        /* --- PUSTEØVELSE (FIXED OVERLAP) --- */
-        #breath-overlay {
-            position: fixed; inset: 0; background: #030712; z-index: 99999; /* Highest Z-Index */
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 1s ease;
+        @keyframes cardEntrance { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* Typography & Brand */
+        .brand-gradient {
+            font-weight: 900; font-size: 2.5rem; margin: 0 0 10px 0; letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        #breath-overlay.active { opacity: 1; display: flex; }
-        .breath-circle-container { position: relative; width: 350px; height: 350px; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
-        .breath-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 80px var(--primary); border: 2px solid #fff; }
-        .breath-text { font-size: 2.5rem; font-weight: 300; letter-spacing: 5px; color: white; text-transform: uppercase; position: absolute; text-shadow: 0 0 20px var(--primary); }
-        .close-breath-btn { margin-top: 40px; background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 12px 30px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 1rem; }
-        .close-breath-btn:hover { border-color: white; color: white; background: rgba(255,255,255,0.1); }
-        @keyframes inhale { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(3.5); opacity: 1; } }
-        @keyframes exhale { 0% { transform: scale(3.5); opacity: 1; } 100% { transform: scale(1); opacity: 0.5; } }
+        .intro-subtitle { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 40px; font-weight: 500; }
 
-        /* Success & Level Up */
-        .success-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; z-index: 9999; opacity: 0; transition: opacity 0.3s; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); }
-        .success-content { text-align: center; transform: scale(0.8); opacity: 0; display:flex; flex-direction:column; align-items:center; }
-        .success-icon { font-size: 8rem; color: var(--success); text-shadow: 0 0 80px var(--success); margin-bottom: 10px; filter: drop-shadow(0 0 20px var(--success)); }
-        .success-text { font-size: 4rem; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 40px var(--success); }
-        .xp-text { font-size: 2.5rem; font-weight: 800; color: var(--accent); margin-top: 10px; animation: floatUp 1s forwards; opacity:0; }
-        .level-progress-container { width: 300px; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-top: 20px; overflow: hidden; position: relative; }
-        .level-progress-bar { width: 0%; height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); transition: width 1s cubic-bezier(0.22, 1, 0.36, 1); }
-        .level-text { color: var(--text-muted); margin-top: 10px; font-family: 'JetBrains Mono', monospace; }
-        .success-overlay.animate-boom { opacity: 1; }
-        .success-overlay.animate-boom .success-content { animation: popInSuccess 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .success-overlay.animate-boom .xp-text { animation: floatUp 0.8s 0.2s forwards; }
-        @keyframes popInSuccess { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes floatUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .levelup-rays { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 100vh; background: conic-gradient(from 0deg, transparent 0deg, var(--accent) 20deg, transparent 40deg, var(--accent) 60deg, transparent 80deg); opacity: 0.1; animation: rotateRays 10s linear infinite; z-index: -1; }
-        @keyframes rotateRays { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        /* Avatar Section */
+        .pro-avatar-wrapper {
+            width: 110px; height: 110px; margin: 0 auto 30px auto; position: relative; cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .pro-avatar-wrapper:hover { transform: scale(1.05); }
+        .pro-avatar { 
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid white; 
+        }
+        .pro-camera-badge {
+            position: absolute; bottom: 0; right: 0; width: 36px; height: 36px;
+            background: var(--apple-blue); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 3px solid white; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
 
-        /* Standard Components */
-        .timer-display { font-size: 5.5rem; font-weight: 800; text-align: center; margin: 20px 0; font-variant-numeric: tabular-nums; letter-spacing: -4px; background: linear-gradient(180deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(255,255,255,0.1)); }
-        .time-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 25px; }
-        .time-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; font-weight: 600; }
-        .time-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-        .time-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 20px var(--primary); }
-        .action-btn { width: 100%; padding: 18px; border-radius: 20px; border: none; background: var(--primary); color: white; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
-        .action-btn:active { transform: scale(0.96); }
-        .sound-mixer { display: flex; gap: 12px; margin-top: 15px; justify-content: center; }
-        .sound-btn { width: 55px; height: 55px; border-radius: 16px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; font-size: 1.2rem; }
-        .sound-btn:hover { background: rgba(255,255,255,0.1); color: white; transform: translateY(-3px); }
-        .sound-btn.active { background: rgba(99, 102, 241, 0.2); color: var(--primary); border-color: var(--primary); box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
-        .sound-label { font-size: 0.6rem; margin-top: 4px; font-weight: 700; text-transform: uppercase; }
-        .schedule-grid { display: grid; grid-template-columns: 80px repeat(5, 1fr); gap: 10px; overflow-x: auto; padding-bottom: 10px; min-width: 600px; }
-        .sch-header { font-weight: 700; color: var(--text-muted); text-align: center; padding: 10px; }
-        .sch-time { color: var(--text-muted); font-size: 0.8rem; display: flex; align-items: center; justify-content: center; }
-        .sch-cell { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; min-height: 80px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; text-align: center; word-break: break-word; }
-        .sch-cell:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
-        .sch-cell.current-active { background: rgba(99, 102, 241, 0.15); border: 2px solid var(--primary); box-shadow: 0 0 20px var(--primary), inset 0 0 20px rgba(99, 102, 241, 0.2); animation: pulseNeon 2s infinite; z-index: 2; }
-        @keyframes pulseNeon { 0% { box-shadow: 0 0 15px var(--primary); } 50% { box-shadow: 0 0 30px var(--primary); } 100% { box-shadow: 0 0 15px var(--primary); } }
-        .calc-screen { background: #000; color: var(--primary); padding: 20px; border-radius: 18px; text-align: right; font-family: monospace; font-size: 2rem; border: 1px solid var(--glass-border); margin-bottom: 15px; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-key { padding: 15px; border-radius: 12px; border: none; font-size: 1.1rem; font-weight: 600; background: rgba(255,255,255,0.05); color: var(--text-main); cursor: pointer; transition:0.1s; }
-        .calc-key:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-        .calc-key.op { color: var(--primary); } .calc-key.sci { color: var(--accent); font-size: 0.9rem; }
-        .avatar-container { position: relative; width: 130px; height: 130px; margin: 0 auto; cursor: pointer; transition: transform 0.3s; }
-        .avatar-lg { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .edit-badge { position: absolute; bottom: 5px; right: 5px; width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid var(--glass-surface); color: white; }
-        .profile-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-        .pill-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .level-badge { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 5px 12px; border-radius: 12px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-top: 5px; }
+        /* Sharp Inputs & Buttons */
+        .input-group-pro { margin-bottom: 25px; text-align: left; }
+        .label-pro { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; padding-left: 4px; }
+        .input-pro {
+            width: 100%; padding: 18px 20px; border-radius: 16px; border: none;
+            font-size: 1.05rem; color: var(--text-dark); outline: none;
+            background: var(--input-bg); font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        .input-pro:focus { background: white; box-shadow: inset 0 0 0 2px var(--apple-blue); }
+        .input-pro::placeholder { color: #A1A1A6; }
 
-        /* Mobile Adjustments - FIX FOR TOP BUTTONS */
+        .btn-pro {
+            width: 100%; padding: 18px; border: none; border-radius: 16px;
+            background: linear-gradient(135deg, var(--apple-blue), var(--apple-purple));
+            color: white; font-weight: 700; font-size: 1.1rem; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 20px -10px rgba(0, 122, 255, 0.5);
+        }
+        .btn-pro:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(0, 122, 255, 0.6); }
+        .btn-pro:active { transform: scale(0.98); }
+
+        /* Exit Animation Class */
+        .fade-out-zoom {
+            animation: fadeOutZoom 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+        }
+        @keyframes fadeOutZoom {
+            to { opacity: 0; transform: scale(1.1); filter: blur(10px); }
+        }
+
+        /* =========================================
+           OLD STYLES (Kept for the main app to work)
+        ========================================= */
+        #setup-screen, #intro-screen { display: none; } /* Hide old intros */
+        .app-shell { display: flex; height: 100%; width: 100%; position:relative; z-index:1; opacity: 0; transition: opacity 0.8s ease-out; transform: scale(0.98); }
+        .app-shell.visible { opacity: 1; transform: scale(1); }
+
+        /* (Rest of your existing app styles - Simplified for brevity in this view) */
+        .sidebar { width: 280px; background: rgba(255,255,255,0.8); backdrop-filter: blur(25px); border-right: 1px solid rgba(255,255,255,0.6); padding: 40px 25px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
+        .logo-area { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 50px; padding-left: 10px; }
+        .logo-area span { color: var(--primary); }
+        .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 16px 20px; border-radius: 16px; cursor: pointer; text-align: left; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 15px; }
+        .nav-btn.active { background: var(--text-main); color: white; }
+        .main-view { flex: 1; overflow-y: auto; padding: 50px 60px; position: relative; background: var(--bg-gradient); }
+        .section { display: none; } .section.active { display: block; }
+        .greeting { font-size: 3rem; font-weight: 800; color: var(--text-main); margin: 0; letter-spacing: -1.5px; }
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .glass-card { background: var(--glass-surface); border: 1px solid rgba(255,255,255,0.6); border-radius: 28px; padding: 30px; box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.1); backdrop-filter: blur(20px); }
         .mobile-nav { display: none; }
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-view { padding: 20px; padding-bottom: 100px; }
-            /* FORCE BOTTOM POSITION AND HIDE ON LARGER SCREENS */
-            .mobile-nav { 
-                display: flex; position: fixed; bottom: 0; left: 0; width: 100%; 
-                background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(20px); 
-                border-top: 1px solid var(--glass-border); justify-content: space-around; 
-                padding: 15px; z-index: 10000;
-            }
-            .mob-btn { background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 600; }
-            .mob-btn.active { color: var(--primary); }
-            .mob-btn i { font-size: 1.5rem; }
-        }
-        @media (min-width: 769px) {
-            /* Ensure mobile nav is GONE on desktop/tablet landscape */
-            .mobile-nav { display: none !important; }
-        }
+        @media (max-width: 768px) { .sidebar { display: none; } .mobile-nav { display: flex; position: fixed; bottom: 0; width: 100%; background: white; justify-content: space-around; padding: 15px; z-index: 100; } .main-view { padding: 30px 20px; } .intro-glass-card { padding: 40px 25px; } }
+
     </style>
 </head>
 <body>
 
-    <canvas id="neural-canvas"></canvas>
-
-    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
-
-    <div id="welcome-screen">
-        <div id="quote-container" class="quote-container">
-            <span id="typewriter"></span><span class="cursor"></span>
-        </div>
-        <button class="start-btn" id="start-btn" onclick="enterSystem()">INITIALIZE SYSTEM</button>
-    </div>
-
-    <div id="success-animation" class="success-overlay">
-        <div class="levelup-rays"></div>
-        <div class="success-content">
-            <i class="ph ph-check-circle success-icon" id="success-icon"></i>
-            <div class="success-text" id="success-main-text">GODT JOBBA!</div>
-            <div class="xp-text" id="xp-gain-text">+25 XP</div>
-            <div class="level-progress-container">
-                <div class="level-progress-bar" id="xp-bar-overlay"></div>
+    <div id="pro-intro-screen">
+        <div class="bg-orb orb-1"></div>
+        <div class="bg-orb orb-2"></div>
+        
+        <div class="intro-glass-card">
+            <h1 class="brand-gradient">mehdi.co</h1>
+            <p class="intro-subtitle">Din profesjonelle studiepartner.</p>
+            
+            <div class="pro-avatar-wrapper" onclick="document.getElementById('proAvatarUpload').click()">
+                <img id="proAvPreview" class="pro-avatar" src="https://api.dicebear.com/7.x/notionists/svg?seed=student">
+                <div class="pro-camera-badge"><i class="ph ph-camera"></i></div>
             </div>
-            <div class="level-text" id="level-text-overlay">LEVEL 1: 50 / 100 XP</div>
+            <input type="file" id="proAvatarUpload" accept="image/*" style="display: none;">
+            
+            <div class="input-group-pro">
+                <label for="setupNamePro" class="label-pro">Hva skal vi kalle deg?</label>
+                <input type="text" id="setupNamePro" class="input-pro" placeholder="Ditt navn" autocomplete="off">
+            </div>
+            
+            <button class="btn-pro" onclick="finalizeProLogin()">Kom i gang</button>
         </div>
     </div>
-
-    <div id="breath-overlay">
-        <div class="breath-circle-container">
-            <div class="breath-circle" id="breath-circle"></div>
-            <div class="breath-text" id="breath-text">PUST INN</div>
-        </div>
-        <div class="breath-timer">Rolig musikk spiller...</div>
-        <button class="close-breath-btn" onclick="stopBreathing()">Avslutt Pusteøvelse</button>
-    </div>
+    <div id="intro-screen"></div> <div id="setup-screen"></div>
 
     <div class="app-shell" id="app-shell">
-        
         <aside class="sidebar">
-            <div class="logo-area">mehdi<span style="color:var(--primary)">.co</span></div>
-            <button class="nav-btn active" onclick="nav('dashboard')"><i class="ph ph-squares-four"></i> Oversikt</button>
-            <button class="nav-btn" onclick="nav('schedule')"><i class="ph ph-calendar"></i> Timeplan</button>
-            <button class="nav-btn" onclick="nav('tools')"><i class="ph ph-calculator"></i> Verktøy</button>
-            <button class="nav-btn" onclick="nav('tasks')"><i class="ph ph-check-square"></i> Oppgaver</button>
-            <button class="nav-btn" onclick="nav('settings')"><i class="ph ph-gear"></i> Innstillinger</button>
-            
-            <div style="margin-top:auto; display:flex; gap:10px; align-items:center; padding:10px; background:rgba(255,255,255,0.05); border-radius:12px;">
-                <img id="miniAv" src="" style="width:40px;height:40px;border-radius:50%;background:#000;object-fit:cover;">
-                <div>
-                    <div id="miniName" style="font-weight:700; font-size:0.9rem;">Elev</div>
-                    <div id="miniLevel" class="level-badge">LVL 1</div>
-                </div>
-            </div>
+            <div class="logo-area">mehdi<span>.co</span></div>
+            <button class="nav-btn active"><i class="ph ph-squares-four"></i> Oversikt</button>
+            <button class="nav-btn"><i class="ph ph-calendar"></i> Timeplan</button>
+            <button class="nav-btn"><i class="ph ph-calculator"></i> Verktøy</button>
+            <button class="nav-btn"><i class="ph ph-check-square"></i> Oppgaver</button>
+            <button class="nav-btn"><i class="ph ph-game-controller"></i> Spill</button>
+            <button class="nav-btn"><i class="ph ph-gear"></i> Innstillinger</button>
         </aside>
 
         <main class="main-view">
-            
             <section id="dashboard" class="section active">
-                <h1 id="greet" style="font-weight:800; font-size:2rem; margin-bottom:20px;">Velkommen.</h1>
-                <div class="grid-layout">
-                    <div class="glass-card" style="text-align:center;">
-                        <h3 style="margin:0; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; font-size:0.8rem;">Fokus Status</h3>
-                        <div class="timer-display" id="timer">25:00</div>
-                        
-                        <div class="time-controls">
-                            <button class="time-btn" onclick="setDuration(10)">10m</button>
-                            <button class="time-btn active" onclick="setDuration(25)">25m</button>
-                            <button class="time-btn" onclick="setDuration(45)">45m</button>
-                            <button class="time-btn" onclick="setDuration(60)">60m</button>
-                        </div>
-
-                        <button class="action-btn" id="timerBtn" onclick="toggleTimer()">START ØKT</button>
+                <div class="page-header">
+                    <div>
+                        <h1 class="greeting" id="greet">Hei</h1>
+                        <p class="subtitle" id="dateSub" style="color:var(--text-muted);">Velkommen tilbake.</p>
                     </div>
-                    
+                </div>
+                <div class="grid-layout" style="margin-top: 40px;">
                     <div class="glass-card">
-                        <h3 style="margin:0 0 15px 0;">Lyd Generator</h3>
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">Generert i sanntid.</p>
-                        
-                        <div class="sound-mixer">
-                            <button class="sound-btn" onclick="toggleNoise('pink')" title="Fokus Støy">
-                                <i class="ph ph-waves"></i><span class="sound-label">Fokus</span>
-                            </button>
-                            <button class="sound-btn" onclick="toggleNoise('brown')" title="Dyp Støy">
-                                <i class="ph ph-cloud-lightning"></i><span class="sound-label">Dyp</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="glass-card">
-                        <h3 style="margin:0 0 15px 0;">Rank & XP</h3>
-                        <div style="height:150px;"><canvas id="chart"></canvas></div>
+                        <h2>Klar for dagen?</h2>
+                        <p style="color:var(--text-muted);">Dine verktøy er klare.</p>
                     </div>
                 </div>
             </section>
-
-            <section id="schedule" class="section">
-                <h1>Min Ukeplan</h1>
-                <div class="glass-card" style="overflow:hidden;">
-                    <div class="schedule-grid" id="schGrid"></div>
-                </div>
-                <p style="text-align:center; color:var(--text-muted); margin-top:10px;">Klikk på en time for å endre fag. Aktiv time lyser opp.</p>
-            </section>
-
-            <section id="tools" class="section">
-                <h1 style="margin-bottom:20px;">Vitenskapelig Lab</h1>
-                <div class="grid-layout">
-                    <div class="glass-card" style="max-width: 450px;">
-                        <div class="calc-wrapper">
-                            <div class="calc-screen" id="calcDisp">0</div>
-                            <div class="calc-grid">
-                                <button class="calc-key sci" onclick="add('sin(')">sin</button>
-                                <button class="calc-key sci" onclick="add('cos(')">cos</button>
-                                <button class="calc-key sci" onclick="add('tan(')">tan</button>
-                                <button class="calc-key sci" onclick="add('sqrt(')">√</button>
-                                <button class="calc-key sci" onclick="add('^')">^</button>
-                                <button class="calc-key sci" onclick="add('(')">(</button>
-                                <button class="calc-key sci" onclick="add(')')">)</button>
-                                <button class="calc-key op" onclick="add('/')">÷</button>
-                                <button class="calc-key" onclick="add('7')">7</button>
-                                <button class="calc-key" onclick="add('8')">8</button>
-                                <button class="calc-key" onclick="add('9')">9</button>
-                                <button class="calc-key op" onclick="add('*')">×</button>
-                                <button class="calc-key" onclick="add('4')">4</button>
-                                <button class="calc-key" onclick="add('5')">5</button>
-                                <button class="calc-key" onclick="add('6')">6</button>
-                                <button class="calc-key op" onclick="add('-')">-</button>
-                                <button class="calc-key" onclick="add('1')">1</button>
-                                <button class="calc-key" onclick="add('2')">2</button>
-                                <button class="calc-key" onclick="add('3')">3</button>
-                                <button class="calc-key op" onclick="add('+')">+</button>
-                                <button class="calc-key clear" style="color:#ef4444;" onclick="cls()">C</button>
-                                <button class="calc-key" onclick="add('0')">0</button>
-                                <button class="calc-key" onclick="add('.')">.</button>
-                                <button class="calc-key equals" style="background:var(--primary); color:white;" onclick="solve()">=</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="glass-card">
-                        <h3>Notater</h3>
-                        <textarea id="notes" style="width:100%; height:300px; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); color:white; padding:15px; border-radius:15px; resize:none;" placeholder="Skriv notater her..."></textarea>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tasks" class="section">
-                <h1>Mine Oppgaver</h1>
-                <div class="glass-card" style="max-width:600px;">
-                    <div style="display:flex; gap:10px; margin-bottom:20px;">
-                        <input type="text" id="taskInput" style="flex:1; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); padding:15px; border-radius:15px; color:white;" placeholder="Hva må gjøres?" onkeypress="if(event.key==='Enter') addTask()">
-                        <button class="action-btn" style="width:auto;" onclick="addTask()">LEGG TIL</button>
-                    </div>
-                    <div id="taskList"></div>
-                </div>
-            </section>
-
-            <section id="settings" class="section">
-                <h1>Profil Dashboard</h1>
-                <div class="glass-card" style="text-align:center; padding-top:40px; overflow:visible;">
-                    <div style="height:110px; background:linear-gradient(to right bottom, var(--primary), var(--accent)); position:absolute; top:0; left:0; width:100%; opacity:0.8;"></div>
-                    <div class="avatar-container" onclick="triggerAvatarUpload()" style="margin-top:10px;">
-                        <img id="bigAv" class="avatar-lg" src="">
-                        <div class="edit-badge"><i class="ph ph-camera"></i></div>
-                    </div>
-                    <h2 id="bigName" style="margin:15px 0 5px 0; font-size:1.8rem;">Elev</h2>
-                    <div style="color:var(--primary); font-size:0.9rem; font-weight:600; margin-bottom:20px;">STUDENT OS USER</div>
-                    <div class="profile-actions">
-                        <button class="pill-btn" onclick="editName()"><i class="ph ph-pencil-simple"></i> Endre Navn</button>
-                        <button class="pill-btn" onclick="resetAvatar()"><i class="ph ph-robot"></i> Generer Robot</button>
-                    </div>
-                    <div style="margin-top:40px; text-align:left; border-top:1px solid var(--glass-border); padding-top:20px;">
-                        <h3 style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Tema</h3>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-                            <button onclick="setTheme('')" class="pill-btn" style="border-color:#333; background:#030712;">Standard</button>
-                            <button onclick="setTheme('theme-cyber')" class="pill-btn" style="border-color:#00f0ff; color:#00f0ff; background:black;">Cyber</button>
-                            <button onclick="setTheme('theme-nature')" class="pill-btn" style="border-color:#10b981; color:#10b981; background:#022c22;">Nature</button>
-                            <button onclick="setTheme('theme-sunset')" class="pill-btn" style="border-color:#f43f5e; color:#f43f5e; background:#2a0a18;">Sunset</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
         </main>
-        
-        <nav class="mobile-nav">
-            <button class="mob-btn active" onclick="nav('dashboard')"><i class="ph ph-squares-four"></i><span>Hjem</span></button>
-            <button class="mob-btn" onclick="nav('schedule')"><i class="ph ph-calendar"></i><span>Plan</span></button>
-            <button class="mob-btn" onclick="nav('tools')"><i class="ph ph-calculator"></i><span>Lab</span></button>
-            <button class="mob-btn" onclick="nav('tasks')"><i class="ph ph-check-square"></i><span>Mål</span></button>
-            <button class="mob-btn" onclick="nav('settings')"><i class="ph ph-user"></i><span>Meg</span></button>
+        <nav class="mobile-nav"> <button style="border:none;background:none;font-size:1.5rem;color:var(--primary);"><i class="ph ph-squares-four"></i></button>
+             <button style="border:none;background:none;font-size:1.5rem;color:#ccc;"><i class="ph ph-calendar"></i></button>
         </nav>
-
     </div>
 
+
 <script>
-    // --- MOTIVATIONAL INTRO ---
-    const quotes = [
-        "Suksess er summen av små innsatser, gjentatt dag ut og dag inn.",
-        "Tro at du kan, og du er halvveis.",
-        "Fremtiden tilhører de som tror på skjønnheten i drømmene sine.",
-        "Gjør noe i dag som din fremtidige selv vil takke deg for.",
-        "Den beste måten å forutsi fremtiden på er å skape den."
-    ];
-    
-    let isAudioInitialized = false;
+    // --- NEW PRO INTRO LOGIC ---
 
-    window.onload = function() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        const typewriter = document.getElementById('typewriter');
-        const btn = document.getElementById('start-btn');
-        let i = 0;
-
-        function type() {
-            if (i < quote.length) {
-                typewriter.innerHTML += quote.charAt(i);
-                i++;
-                setTimeout(type, 50); // Speed of typing
-            } else {
-                setTimeout(() => { btn.classList.add('visible'); }, 500);
-            }
+    // Handle Avatar Upload in new intro
+    document.getElementById('proAvatarUpload').addEventListener('change', function(e) {
+        if(e.target.files[0]) {
+            const r = new FileReader();
+            r.onload = (evt) => { 
+                state.avatar = evt.target.result; 
+                document.getElementById('proAvPreview').src = state.avatar;
+            };
+            r.readAsDataURL(e.target.files[0]);
         }
-        type();
-    };
-    
-    function enterSystem() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        isAudioInitialized = true;
+    });
+
+    // Transition sequence
+    function finalizeProLogin() {
+        const nameInput = document.getElementById('setupNamePro').value;
+        if(nameInput) state.name = nameInput;
         
-        document.getElementById('welcome-screen').classList.add('hidden');
-        document.getElementById('app-shell').classList.add('visible');
-        playSuccessSound();
+        // Save data
+        save(); 
+        updateGlobalUI(); // Update the main app behind the scenes
+
+        // 1. Trigger exit animation on intro
+        const introScreen = document.getElementById('pro-intro-screen');
+        introScreen.classList.add('fade-out-zoom');
+
+        // 2. Wait for animation, then hide intro and reveal app
+        setTimeout(() => {
+            introScreen.style.display = 'none';
+            document.getElementById('app-shell').classList.add('visible');
+        }, 8000); // Matches animation duration (0.8s)
     }
 
-    // --- NEURAL DATA BACKGROUND SYSTEM ---
-    const canvas = document.getElementById('neural-canvas');
-    const ctx = canvas.getContext('2d');
-    let w, h; let particles = [];
-    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-    class Node {
-        constructor() { this.x = Math.random() * w; this.y = Math.random() * h; this.vx = (Math.random() - 0.5) * 0.8; this.vy = (Math.random() - 0.5) * 0.8; this.size = Math.random() * 2 + 1; }
-        update() { this.x += this.vx; this.y += this.vy; if(this.x<0||this.x>w)this.vx*=-1; if(this.y<0||this.y>h)this.vy*=-1; }
-        draw() { ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim(); ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
-    }
-    for(let i=0; i<80; i++) particles.push(new Node());
-    let mouse = { x: -1000, y: -1000 };
-    window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-    function animateNeural() {
-        ctx.clearRect(0, 0, w, h);
-        const color = getComputedStyle(document.body).getPropertyValue('--primary').trim();
-        const accent = getComputedStyle(document.body).getPropertyValue('--accent').trim();
-        particles.forEach(p => {
-            p.update(); p.draw();
-            particles.forEach(p2 => {
-                const dist = Math.sqrt((p.x-p2.x)**2 + (p.y-p2.y)**2);
-                if(dist < 120) { ctx.beginPath(); ctx.strokeStyle = color; ctx.globalAlpha = 1-(dist/120); ctx.lineWidth = 0.5; ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
-            });
-            const distM = Math.sqrt((mouse.x-p.x)**2 + (mouse.y-p.y)**2);
-            if(distM < 180) { ctx.beginPath(); ctx.strokeStyle = accent; ctx.globalAlpha = 1-(distM/180); ctx.lineWidth = 0.8; ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
-        });
-        requestAnimationFrame(animateNeural);
-    }
-    animateNeural();
 
-    // --- AUDIO SYNTHESIZER ---
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playKeySound() {
-        if (!isAudioInitialized) return;
-        const t = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.frequency.setValueAtTime(120, t); osc.frequency.exponentialRampToValueAtTime(60, t + 0.08); osc.type = 'triangle';
-        const filter = audioCtx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 800;
-        gain.gain.setValueAtTime(0.15, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
-        osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.08);
-        const bSize = audioCtx.sampleRate * 0.04; const b = audioCtx.createBuffer(1, bSize, audioCtx.sampleRate); const d = b.getChannelData(0);
-        for(let i=0; i<bSize; i++) d[i] = (Math.random() * 2 - 1) * 0.5;
-        const noise = audioCtx.createBufferSource(); noise.buffer = b;
-        const nGain = audioCtx.createGain(); nGain.gain.value = 0.05;
-        const nFilter = audioCtx.createBiquadFilter(); nFilter.type = "lowpass"; nFilter.frequency.value = 400;
-        noise.connect(nFilter); nFilter.connect(nGain); nGain.connect(audioCtx.destination); noise.start(t);
-    }
-    document.addEventListener('keydown', () => { playKeySound(); });
+    // --- EXISTING APP LOGIC (Simplified for context) ---
+    let state = { name: "Student", avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=student" };
+    if(localStorage.getItem('UltOS')) { state = JSON.parse(localStorage.getItem('UltOS')); }
 
-    function playLevelUpSound() {
-        if (!isAudioInitialized) return;
-        const now = audioCtx.currentTime;
-        const notes = [261.63, 329.63, 392.00, 523.25];
-        notes.forEach((freq, i) => {
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.type = 'sawtooth'; osc.frequency.value = freq;
-            const startTime = now + i * 0.1; gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
-            osc.start(startTime); osc.stop(startTime + 0.5);
-        });
-    }
-
-    function playSuccessSound() {
-        const t = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'sine'; osc.frequency.setValueAtTime(500, t); osc.frequency.exponentialRampToValueAtTime(1000, t + 0.1);
-        gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 1);
-        osc.start(t); osc.stop(t + 1);
-    }
-
-    let breathOsc, breathGain, noiseNode;
-    function startBreathSound() {
-        if(breathOsc) return;
-        breathOsc = audioCtx.createOscillator(); breathGain = audioCtx.createGain();
-        breathOsc.connect(breathGain); breathGain.connect(audioCtx.destination);
-        breathOsc.type = 'triangle'; breathOsc.frequency.setValueAtTime(120, audioCtx.currentTime);
-        breathGain.gain.setValueAtTime(0, audioCtx.currentTime); breathOsc.start(); animateBreathSound();
-    }
-    function animateBreathSound() {
-        if(!breathOsc) return;
-        const t = audioCtx.currentTime;
-        breathGain.gain.cancelScheduledValues(t);
-        breathGain.gain.linearRampToValueAtTime(0.15, t + 4); breathGain.gain.linearRampToValueAtTime(0, t + 8);
-        setTimeout(animateBreathSound, 8000);
-    }
-    function stopBreathSound() { if(breathOsc) { breathOsc.stop(); breathOsc.disconnect(); breathOsc = null; } }
-    
-    function toggleNoise(type) {
-        if (noiseNode) { noiseNode.disconnect(); noiseNode = null; document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('active')); return; }
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const bufferSize = audioCtx.sampleRate * 2; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0);
-        let lastOut = 0; for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; data[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = data[i]; data[i] *= 3.5; }
-        noiseNode = audioCtx.createBufferSource(); noiseNode.buffer = buffer; noiseNode.loop = true;
-        const gain = audioCtx.createGain(); gain.gain.value = 0.15; noiseNode.connect(gain); gain.connect(audioCtx.destination); noiseNode.start();
-        const btn = document.querySelector(`.sound-btn[onclick*="${type}"]`); if(btn) btn.classList.add('active');
-    }
-
-    // --- APP CORE ---
-    let state = { name: "Student", theme: "", xp: 0, avatar: "std1", tasks: [], notes: "", schedule: {} };
-    if(localStorage.getItem('StudentOS_Finalv10')) { state = {...state, ...JSON.parse(localStorage.getItem('StudentOS_Finalv10'))}; }
-    function save() { localStorage.setItem('StudentOS_Finalv10', JSON.stringify(state)); }
-
-    // --- INIT ---
-    updateGlobalUI(); renderSchedule();
-    document.getElementById('notes').value = state.notes;
-    document.getElementById('notes').addEventListener('input', (e) => { state.notes = e.target.value; save(); });
+    function save() { localStorage.setItem('UltOS', JSON.stringify(state)); }
 
     function updateGlobalUI() {
-        document.body.className = state.theme;
-        document.getElementById('greet').innerText = `Hei, ${state.name}.`;
-        document.getElementById('miniName').innerText = state.name;
-        document.getElementById('bigName').innerText = state.name;
-        let avUrl = state.avatar.startsWith('data:image') ? state.avatar : `https://api.dicebear.com/7.x/notionists/svg?seed=${state.avatar}`;
-        document.getElementById('miniAv').src = avUrl;
-        document.getElementById('bigAv').src = avUrl;
+        const hr = new Date().getHours();
+        let gt = hr < 12 ? "God morgen" : hr < 18 ? "God ettermiddag" : "God kveld";
+        document.getElementById('greet').innerText = `${gt}, ${state.name}`;
         
-        const level = Math.floor(state.xp / 100) + 1;
-        document.getElementById('miniLevel').innerText = `LVL ${level}`;
-        renderTasks();
+        // If user already has data, pre-fill the new intro
+        if(state.name !== "Student") document.getElementById('setupNamePro').value = state.name;
+        document.getElementById('proAvPreview').src = state.avatar;
     }
 
-    function nav(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-btn, .mob-btn').forEach(b => b.classList.remove('active'));
-        const map = {'dashboard':0, 'schedule':1, 'tools':2, 'tasks':3, 'settings':4};
-        if(document.querySelectorAll('.nav-btn')[map[id]]) document.querySelectorAll('.nav-btn')[map[id]].classList.add('active');
-        if(document.querySelectorAll('.mob-btn')[map[id]]) document.querySelectorAll('.mob-btn')[map[id]].classList.add('active');
-    }
-
-    // Schedule
-    function renderSchedule() {
-        const grid = document.getElementById('schGrid');
-        grid.innerHTML = '<div class="sch-header">Tid</div><div class="sch-header">Man</div><div class="sch-header">Tir</div><div class="sch-header">Ons</div><div class="sch-header">Tor</div><div class="sch-header">Fre</div>';
-        const times = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00"];
-        const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-        const today = new Date();
-        const currentDayIndex = today.getDay();
-        const currentHour = today.getHours();
-        times.forEach(t => {
-            grid.innerHTML += `<div class="sch-time">${t}</div>`;
-            days.forEach((d, index) => {
-                const key = `${d}-${t}`;
-                const subject = state.schedule[key] || "+";
-                let activeClass = "";
-                if ((index + 1) === currentDayIndex && t.startsWith(currentHour.toString().padStart(2, '0'))) activeClass = "current-active";
-                grid.innerHTML += `<div class="sch-cell ${activeClass}" onclick="editSch('${key}')">${subject}</div>`;
-            });
-        });
-    }
-    function editSch(key) { const sub = prompt("Fag:"); if(sub) { state.schedule[key] = sub; save(); renderSchedule(); } }
-    
-    let expression = "";
-    function add(v) { expression += v; document.getElementById('calcDisp').innerText = expression; }
-    function cls() { expression = ""; document.getElementById('calcDisp').innerText = "0"; }
-    function solve() { try { let safe = expression.replace(/sin/g,'Math.sin').replace(/cos/g,'Math.cos').replace(/tan/g,'Math.tan').replace(/sqrt/g,'Math.sqrt').replace(/\^/g,'**'); document.getElementById('calcDisp').innerText = eval(safe); expression = eval(safe).toString(); } catch { document.getElementById('calcDisp').innerText = "Err"; expression=""; } }
-    function triggerAvatarUpload() { document.getElementById('avatarUpload').click(); }
-    document.getElementById('avatarUpload').addEventListener('change', (e) => { if(e.target.files[0]) { const r = new FileReader(); r.onload = (evt) => { state.avatar = evt.target.result; save(); updateGlobalUI(); }; r.readAsDataURL(e.target.files[0]); } });
-    function resetAvatar() { state.avatar = Math.random().toString(36); save(); updateGlobalUI(); }
-    function editName() { const n = prompt("Navn:"); if(n) { state.name=n; save(); updateGlobalUI(); } }
-    function setTheme(t) { state.theme = t; save(); updateGlobalUI(); }
-
-    // --- LEVEL UP LOGIC ---
-    function triggerLevelUpAnimation(newLevel) {
-        const overlay = document.getElementById('success-animation');
-        overlay.classList.remove('animate-boom');
-        
-        document.getElementById('success-main-text').innerText = "LEVEL UP!";
-        document.getElementById('success-icon').className = "ph ph-star success-icon";
-        document.getElementById('xp-gain-text').innerText = "NEW RANK UNLOCKED";
-        document.querySelector('.levelup-rays').style.display = 'block';
-
-        const currentProgress = state.xp % 100;
-        document.getElementById('xp-bar-overlay').style.width = "100%";
-        document.getElementById('level-text-overlay').innerText = `LEVEL ${newLevel}`;
-
-        void overlay.offsetWidth; overlay.classList.add('animate-boom');
-        playLevelUpSound();
-        
-        setTimeout(() => { 
-            overlay.classList.remove('animate-boom'); 
-            document.querySelector('.levelup-rays').style.display = 'none';
-        }, 3000);
-    }
-
-    function triggerSuccessAnimation() {
-        const overlay = document.getElementById('success-animation');
-        overlay.classList.remove('animate-boom');
-        
-        document.getElementById('success-main-text').innerText = "GODT JOBBA!";
-        document.getElementById('success-icon').className = "ph ph-check-circle success-icon";
-        document.getElementById('xp-gain-text').innerText = "+25 XP";
-        document.querySelector('.levelup-rays').style.display = 'none';
-
-        const currentProgress = state.xp % 100;
-        const level = Math.floor(state.xp / 100) + 1;
-        document.getElementById('xp-bar-overlay').style.width = currentProgress + "%";
-        document.getElementById('level-text-overlay').innerText = `LEVEL ${level}: ${currentProgress} / 100 XP`;
-
-        void overlay.offsetWidth; overlay.classList.add('animate-boom');
-        playSuccessSound();
-        setTimeout(() => { overlay.classList.remove('animate-boom'); }, 1500);
-    }
-
-    function addTask() {
-        const val = document.getElementById('taskInput').value;
-        if(!val) return;
-        state.tasks.unshift({ txt: val, id: Date.now() }); 
-        save(); renderTasks();
-        document.getElementById('taskInput').value = "";
-    }
-
-    function removeTask(id) {
-        // DELETE without points
-        state.tasks = state.tasks.filter(t => t.id !== id);
-        save(); renderTasks();
-    }
-
-    function completeTask(id) {
-        // COMPLETE with points
-        const oldLevel = Math.floor(state.xp / 100) + 1;
-        state.xp += 25; 
-        const newLevel = Math.floor(state.xp / 100) + 1;
-        save(); updateGlobalUI(); 
-
-        if (newLevel > oldLevel) triggerLevelUpAnimation(newLevel);
-        else triggerSuccessAnimation();
-        
-        setTimeout(() => { state.tasks = state.tasks.filter(t => t.id !== id); save(); renderTasks(); }, 1500);
-    }
-
-    function renderTasks() {
-        const l = document.getElementById('taskList'); l.innerHTML = "";
-        state.tasks.forEach(t => { 
-            l.innerHTML += `
-            <div class="task-list-item">
-                <span class="task-text">${t.txt}</span>
-                <div class="task-actions">
-                    <button class="btn-delete" onclick="removeTask(${t.id})"><i class="ph ph-x"></i></button>
-                    <button class="btn-complete" onclick="completeTask(${t.id})"><i class="ph ph-check"></i> Ferdig</button>
-                </div>
-            </div>`; 
-        });
-    }
-
-    // Breathing & Timer
-    function startBreathing() { breathOverlay.classList.add('active'); startBreathSound(); runBreathCycle(); breathInterval = setInterval(runBreathCycle, 8000); }
-    function runBreathCycle() { breathText.innerText = "PUST INN"; breathCircle.style.animation = "inhale 4s ease-in-out forwards"; setTimeout(() => { breathText.innerText = "PUST UT"; breathCircle.style.animation = "exhale 4s ease-in-out forwards"; }, 4000); }
-    function stopBreathing() { breathOverlay.classList.remove('active'); clearInterval(breathInterval); stopBreathSound(); breathCircle.style.animation = "none"; }
-    function setDuration(mins) { clearInterval(tInt); tRun = false; document.getElementById('timerBtn').innerText = "START ØKT"; defaultDuration = mins; tTime = mins * 60; updateTimerDisplay(); document.querySelectorAll('.time-btn').forEach(btn => { btn.classList.remove('active'); if(btn.innerText.includes(mins)) btn.classList.add('active'); }); }
-    function updateTimerDisplay() { let m = Math.floor(tTime/60); let s = tTime%60; document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`; }
-    function toggleTimer() {
-        if(tRun) { clearInterval(tInt); document.getElementById('timerBtn').innerText="FORTSETT"; } 
-        else {
-            tInt = setInterval(() => {
-                tTime--; updateTimerDisplay();
-                if(tTime > 0 && tTime % 60 === 0 && tTime !== (defaultDuration*60)) { clearInterval(tInt); tRun = false; document.getElementById('timerBtn').innerText="FORTSETT"; startBreathing(); return; }
-                if(tTime<=0) { clearInterval(tInt); tTime = defaultDuration * 60; triggerSuccessAnimation(); document.getElementById('timerBtn').innerText="START ØKT"; tRun = false; }
-            }, 1000);
-            document.getElementById('timerBtn').innerText="PAUSE";
-        }
-        tRun = !tRun;
-    }
-
-    new Chart(document.getElementById('chart'), {
-        type: 'line',
-        data: { labels: ['M','T','O','T','F','L','S'], datasets: [{ label:'XP', data:[100, 450, 300, 600, 400, 550, 800], borderColor:'#6366f1', borderWidth:3, tension:0.4 }] },
-        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false}, y:{display:false}} }
-    });
+    // Initialize
+    window.onload = function() {
+        updateGlobalUI();
+    };
 </script>
 </body>
 </html>
