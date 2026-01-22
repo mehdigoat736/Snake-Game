@@ -3,272 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>mehdi.co // Pro Edition</title>
+    <title>Zenith OS // Ultimate</title>
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* --- NEW PRO THEME COLORS --- */
-            --apple-blue: #007AFF;
-            --apple-purple: #5856D6;
-            --apple-bg: #F2F2F7;
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --text-dark: #1D1D1F;
-            --text-secondary: #86868B;
-            --input-bg: rgba(118, 118, 128, 0.12);
-
-            /* KEEPING OLD VARIABLES FOR MAIN APP COMPATIBILITY */
-            --primary: #3b82f6;
-            --primary-light: #eff6ff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 100%);
-            --glass-surface: rgba(255, 255, 255, 0.8);
+            /* --- ZENITH DARK PALETTE --- */
+            --bg-deep: #030305;
+            --bg-surface: #0a0a0c;
+            
+            --glass-high: rgba(255, 255, 255, 0.08);
+            --glass-med: rgba(255, 255, 255, 0.05);
+            --glass-low: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            --accent: #3b82f6;        /* Electric Blue */
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            
+            --text-main: #ffffff;
+            --text-muted: #888899;
+            
+            --font-ui: 'Inter', sans-serif;
+            --font-display: 'Space Grotesk', sans-serif;
+            
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
         
         body {
-            margin: 0; font-family: 'Inter', sans-serif;
-            background: var(--apple-bg);
+            margin: 0; font-family: var(--font-ui);
+            background-color: var(--bg-deep); color: var(--text-main);
             height: 100vh; overflow: hidden;
         }
 
-        /* =========================================
-           NEW PROFESSIONAL INTRO SCREEN
-        ========================================= */
-        #pro-intro-screen {
+        /* --- ZENITH CANVAS BACKGROUND --- */
+        #zenith-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        /* --- 1. INTRO & SETUP SCREEN --- */
+        #intro-screen {
             position: fixed; inset: 0; z-index: 50000;
-            background: var(--apple-bg);
+            background: var(--bg-deep);
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
+            transition: opacity 1.5s var(--ease-out), transform 1.5s var(--ease-out);
+        }
+        #intro-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
+
+        .intro-card {
+            width: 100%; max-width: 420px; padding: 60px 40px;
+            background: rgba(10, 10, 12, 0.6); backdrop-filter: blur(40px);
+            border: 1px solid var(--glass-border); border-radius: 30px;
+            text-align: center; box-shadow: 0 40px 80px -20px black;
+            opacity: 0; transform: translateY(30px);
+            animation: introFadeIn 1s var(--ease-out) forwards 0.5s;
         }
 
-        /* Animated Background Orbs */
-        .bg-orb {
-            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: -1;
-            animation: orbFloat 10s infinite ease-in-out alternate;
-        }
-        .orb-1 { top: -10%; left: -10%; width: 50vh; height: 50vh; background: var(--apple-blue); }
-        .orb-2 { bottom: -10%; right: -10%; width: 60vh; height: 60vh; background: var(--apple-purple); animation-delay: -5s; }
-
-        @keyframes orbFloat { from { transform: translate(0, 0) scale(1); } to { transform: translate(30px, 50px) scale(1.1); } }
-
-        /* The Glass Card Container */
-        .intro-glass-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(25px) saturate(180%); /* The "Apple Glass" effect */
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid var(--glass-border);
-            border-radius: 32px;
-            padding: 60px 40px;
-            width: 90%; max-width: 480px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.4) inset;
-            
-            opacity: 0; transform: translateY(30px) scale(0.95);
-            animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
-        }
-
-        @keyframes cardEntrance { to { opacity: 1; transform: translateY(0) scale(1); } }
-
-        /* Typography & Brand */
-        .brand-gradient {
-            font-weight: 900; font-size: 2.5rem; margin: 0 0 10px 0; letter-spacing: -1px;
-            background: linear-gradient(135deg, var(--apple-blue), var(--apple-purple));
+        .zenith-logo {
+            font-family: var(--font-display); font-size: 3rem; font-weight: 300;
+            letter-spacing: 5px; margin-bottom: 40px;
+            background: linear-gradient(to bottom, #fff, #666);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .intro-subtitle { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 40px; font-weight: 500; }
 
-        /* Avatar Section */
-        .pro-avatar-wrapper {
-            width: 110px; height: 110px; margin: 0 auto 30px auto; position: relative; cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .avatar-upload {
+            width: 120px; height: 120px; margin: 0 auto 30px auto; position: relative;
+            cursor: pointer; transition: transform 0.3s;
         }
-        .pro-avatar-wrapper:hover { transform: scale(1.05); }
-        .pro-avatar { 
-            width: 100%; height: 100%; border-radius: 50%; object-fit: cover; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 4px solid white; 
+        .avatar-upload:hover { transform: scale(1.05); }
+        .avatar-img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 30px var(--accent-glow);
         }
-        .pro-camera-badge {
+        .cam-icon {
             position: absolute; bottom: 0; right: 0; width: 36px; height: 36px;
-            background: var(--apple-blue); color: white; border-radius: 50%;
+            background: var(--text-main); color: black; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            border: 3px solid white; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
         }
 
-        /* Sharp Inputs & Buttons */
-        .input-group-pro { margin-bottom: 25px; text-align: left; }
-        .label-pro { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; padding-left: 4px; }
-        .input-pro {
-            width: 100%; padding: 18px 20px; border-radius: 16px; border: none;
-            font-size: 1.05rem; color: var(--text-dark); outline: none;
-            background: var(--input-bg); font-weight: 500;
-            transition: all 0.2s ease;
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        .z-input {
+            width: 100%; background: var(--glass-low); border: 1px solid var(--glass-border);
+            padding: 18px; color: white; font-family: var(--font-display); text-align: center;
+            font-size: 1.2rem; border-radius: 12px; margin-bottom: 30px; transition: 0.3s;
         }
-        .input-pro:focus { background: white; box-shadow: inset 0 0 0 2px var(--apple-blue); }
-        .input-pro::placeholder { color: #A1A1A6; }
+        .z-input:focus { border-color: var(--accent); background: var(--glass-med); box-shadow: 0 0 20px var(--accent-glow); }
 
-        .btn-pro {
-            width: 100%; padding: 18px; border: none; border-radius: 16px;
-            background: linear-gradient(135deg, var(--apple-blue), var(--apple-purple));
-            color: white; font-weight: 700; font-size: 1.1rem; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 10px 20px -10px rgba(0, 122, 255, 0.5);
+        .z-btn {
+            width: 100%; padding: 18px; background: white; color: black; border: none;
+            border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer;
+            transition: 0.3s; letter-spacing: 1px; text-transform: uppercase;
         }
-        .btn-pro:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(0, 122, 255, 0.6); }
-        .btn-pro:active { transform: scale(0.98); }
+        .z-btn:hover { background: var(--accent); color: white; box-shadow: 0 0 30px var(--accent-glow); }
 
-        /* Exit Animation Class */
-        .fade-out-zoom {
-            animation: fadeOutZoom 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+        @keyframes introFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+
+        /* --- 2. MAIN APP SHELL --- */
+        .app-shell {
+            display: flex; height: 100%; width: 100%; position: relative; z-index: 1;
+            opacity: 0; transition: opacity 2s ease;
         }
-        @keyframes fadeOutZoom {
-            to { opacity: 0; transform: scale(1.1); filter: blur(10px); }
+        .app-shell.visible { opacity: 1; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px; background: rgba(5, 5, 8, 0.6); backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border); padding: 40px 30px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .logo-small {
+            font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px;
+            margin-bottom: 50px; color: var(--text-muted);
+        }
+        .logo-small span { color: white; }
+
+        .nav-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            padding: 16px; border-radius: 12px; cursor: pointer; text-align: left;
+            font-size: 0.95rem; display: flex; align-items: center; gap: 15px;
+            transition: 0.3s; font-weight: 400;
+        }
+        .nav-btn:hover { color: white; background: var(--glass-low); }
+        .nav-btn.active { color: white; background: var(--glass-med); border: 1px solid var(--glass-border); }
+        .nav-btn i { font-size: 1.2rem; }
+
+        .profile-widget {
+            margin-top: auto; padding: 15px; border-top: 1px solid var(--glass-border);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .profile-widget img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--glass-border); }
+
+        /* Main View */
+        .main-view { flex: 1; overflow-y: auto; padding: 60px 80px; }
+        
+        .section { display: none; animation: slideUp 0.8s var(--ease-out); }
+        .section.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header-lg { font-family: var(--font-display); font-size: 4rem; font-weight: 300; margin: 0; letter-spacing: -2px; }
+        .sub-header { color: var(--text-muted); margin-top: 10px; font-size: 1.1rem; font-weight: 300; }
+
+        /* Grid */
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; margin-top: 60px; }
+        
+        .zen-card {
+            background: var(--glass-med); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 35px; backdrop-filter: blur(10px);
+            transition: transform 0.4s var(--ease-out), box-shadow 0.4s;
+            position: relative; overflow: hidden;
+        }
+        .zen-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px black; border-color: rgba(255,255,255,0.2); }
+        .zen-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+            opacity: 0.5; pointer-events: none;
         }
 
-        /* =========================================
-           OLD STYLES (Kept for the main app to work)
-        ========================================= */
-        #setup-screen, #intro-screen { display: none; } /* Hide old intros */
-        .app-shell { display: flex; height: 100%; width: 100%; position:relative; z-index:1; opacity: 0; transition: opacity 0.8s ease-out; transform: scale(0.98); }
-        .app-shell.visible { opacity: 1; transform: scale(1); }
+        .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
 
-        /* (Rest of your existing app styles - Simplified for brevity in this view) */
-        .sidebar { width: 280px; background: rgba(255,255,255,0.8); backdrop-filter: blur(25px); border-right: 1px solid rgba(255,255,255,0.6); padding: 40px 25px; display: flex; flex-direction: column; gap: 8px; z-index: 10; }
-        .logo-area { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 50px; padding-left: 10px; }
-        .logo-area span { color: var(--primary); }
-        .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 16px 20px; border-radius: 16px; cursor: pointer; text-align: left; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 15px; }
-        .nav-btn.active { background: var(--text-main); color: white; }
-        .main-view { flex: 1; overflow-y: auto; padding: 50px 60px; position: relative; background: var(--bg-gradient); }
-        .section { display: none; } .section.active { display: block; }
-        .greeting { font-size: 3rem; font-weight: 800; color: var(--text-main); margin: 0; letter-spacing: -1.5px; }
-        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
-        .glass-card { background: var(--glass-surface); border: 1px solid rgba(255,255,255,0.6); border-radius: 28px; padding: 30px; box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.1); backdrop-filter: blur(20px); }
+        /* Timer */
+        .timer-display { 
+            font-family: var(--font-display); font-size: 6rem; font-weight: 300; 
+            text-align: center; margin: 20px 0; color: white; text-shadow: 0 0 30px var(--accent-glow);
+        }
+        .time-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; }
+        .chip { background: var(--glass-low); border: 1px solid var(--glass-border); color: var(--text-muted); padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+        .chip:hover { color: white; border-color: white; }
+        .chip.active { background: var(--text-main); color: black; border-color: white; }
+
+        .breath-btn { 
+            width: 100%; padding: 15px; border: 1px solid var(--glass-border); background: transparent; 
+            color: var(--text-muted); border-radius: 16px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px;
+        }
+        .breath-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--glass-low); }
+
+        /* Tasks */
+        .task-input-area { display: flex; gap: 15px; margin-bottom: 30px; }
+        .task-input { flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--glass-border); padding: 15px; color: white; font-size: 1.2rem; font-family: var(--font-ui); outline: none; transition: 0.3s; }
+        .task-input:focus { border-color: var(--accent); }
+        .add-btn { background: var(--text-main); color: black; border: none; padding: 0 30px; border-radius: 12px; cursor: pointer; font-weight: 600; }
+
+        .task-item {
+            display: flex; align-items: center; padding: 20px; border-bottom: 1px solid var(--glass-border);
+            transition: 0.3s; cursor: pointer;
+        }
+        .task-item:hover { background: var(--glass-low); padding-left: 30px; }
+        .task-text { flex: 1; font-size: 1.1rem; font-weight: 300; }
+        .task-actions button { background: transparent; border: 1px solid var(--glass-border); width: 35px; height: 35px; border-radius: 50%; color: var(--text-muted); cursor: pointer; margin-left: 10px; transition: 0.3s; }
+        .task-actions button:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Audio Control */
+        .audio-toggle {
+            position: absolute; top: 40px; right: 40px; width: 40px; height: 40px;
+            border-radius: 50%; border: 1px solid var(--glass-border); color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            z-index: 20; transition: 0.3s;
+        }
+        .audio-toggle:hover { border-color: white; color: white; }
+        .audio-toggle.active { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+        /* Mobile */
         .mobile-nav { display: none; }
-        @media (max-width: 768px) { .sidebar { display: none; } .mobile-nav { display: flex; position: fixed; bottom: 0; width: 100%; background: white; justify-content: space-around; padding: 15px; z-index: 100; } .main-view { padding: 30px 20px; } .intro-glass-card { padding: 40px 25px; } }
+        @media (max-width: 768px) { .sidebar { display: none; } .mobile-nav { display: flex; position: fixed; bottom: 0; width: 100%; background: #0a0a0c; border-top: 1px solid var(--glass-border); padding: 15px; justify-content: space-around; z-index: 100; } .main-view { padding: 30px 20px; } .header-lg { font-size: 2.5rem; } }
+        .mob-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; }
+        .mob-btn.active { color: var(--accent); }
+
+        /* Overlays */
+        #breath-overlay { position: fixed; inset: 0; background: #000; z-index: 60000; display: none; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 1s; }
+        #breath-overlay.active { display: flex; opacity: 1; }
+        .breath-circle { width: 200px; height: 200px; border: 1px solid var(--accent); border-radius: 50%; box-shadow: 0 0 50px var(--accent-glow); position: relative; }
+        .breath-circle::after { content:''; position: absolute; inset: -20px; border: 1px solid rgba(59,130,246,0.3); border-radius: 50%; }
+        .breath-label { margin-top: 40px; font-family: var(--font-display); font-size: 2rem; letter-spacing: 5px; color: var(--accent); }
+        @keyframes zenInhale { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 1; } }
+        @keyframes zenExhale { 0% { transform: scale(1.5); opacity: 1; } 100% { transform: scale(1); opacity: 0.5; } }
 
     </style>
 </head>
 <body>
 
-    <div id="pro-intro-screen">
-        <div class="bg-orb orb-1"></div>
-        <div class="bg-orb orb-2"></div>
-        
-        <div class="intro-glass-card">
-            <h1 class="brand-gradient">mehdi.co</h1>
-            <p class="intro-subtitle">Din profesjonelle studiepartner.</p>
+    <canvas id="zenith-canvas"></canvas>
+    <input type="file" id="avatarUpload" style="display:none">
+
+    <div id="intro-screen">
+        <div class="intro-card">
+            <h1 class="zenith-logo">ZENITH</h1>
             
-            <div class="pro-avatar-wrapper" onclick="document.getElementById('proAvatarUpload').click()">
-                <img id="proAvPreview" class="pro-avatar" src="https://api.dicebear.com/7.x/notionists/svg?seed=student">
-                <div class="pro-camera-badge"><i class="ph ph-camera"></i></div>
-            </div>
-            <input type="file" id="proAvatarUpload" accept="image/*" style="display: none;">
-            
-            <div class="input-group-pro">
-                <label for="setupNamePro" class="label-pro">Hva skal vi kalle deg?</label>
-                <input type="text" id="setupNamePro" class="input-pro" placeholder="Ditt navn" autocomplete="off">
+            <div class="avatar-upload" onclick="document.getElementById('avatarUpload').click()">
+                <img id="introAv" class="avatar-img" src="https://api.dicebear.com/7.x/notionists/svg?seed=zenith">
+                <div class="cam-icon"><i class="ph ph-camera"></i></div>
             </div>
             
-            <button class="btn-pro" onclick="finalizeProLogin()">Kom i gang</button>
+            <input type="text" id="setupName" class="z-input" placeholder="NAVN" autocomplete="off">
+            <button class="z-btn" onclick="enterZenith()">INITIALIZE</button>
         </div>
     </div>
-    <div id="intro-screen"></div> <div id="setup-screen"></div>
 
     <div class="app-shell" id="app-shell">
+        
+        <div class="audio-toggle" id="audioBtn" onclick="toggleAudio()"><i class="ph ph-speaker-simple-high"></i></div>
+
         <aside class="sidebar">
-            <div class="logo-area">mehdi<span>.co</span></div>
-            <button class="nav-btn active"><i class="ph ph-squares-four"></i> Oversikt</button>
-            <button class="nav-btn"><i class="ph ph-calendar"></i> Timeplan</button>
-            <button class="nav-btn"><i class="ph ph-calculator"></i> Verktøy</button>
-            <button class="nav-btn"><i class="ph ph-check-square"></i> Oppgaver</button>
-            <button class="nav-btn"><i class="ph ph-game-controller"></i> Spill</button>
-            <button class="nav-btn"><i class="ph ph-gear"></i> Innstillinger</button>
+            <div class="logo-small">ZENITH <span>OS</span></div>
+            <button class="nav-btn active" onclick="nav('dashboard')"><i class="ph ph-squares-four"></i> Oversikt</button>
+            <button class="nav-btn" onclick="nav('tasks')"><i class="ph ph-check-circle"></i> Oppgaver</button>
+            <button class="nav-btn" onclick="nav('tools')"><i class="ph ph-calculator"></i> Verktøy</button>
+            <button class="nav-btn" onclick="nav('settings')"><i class="ph ph-gear"></i> Innstillinger</button>
+            
+            <div class="profile-widget">
+                <img id="miniAv" src="">
+                <div>
+                    <div style="font-weight:600; font-size:0.9rem;" id="miniName">Navn</div>
+                    <div style="color:var(--text-muted); font-size:0.75rem;">ONLINE</div>
+                </div>
+            </div>
         </aside>
 
         <main class="main-view">
+            
             <section id="dashboard" class="section active">
-                <div class="page-header">
-                    <div>
-                        <h1 class="greeting" id="greet">Hei</h1>
-                        <p class="subtitle" id="dateSub" style="color:var(--text-muted);">Velkommen tilbake.</p>
+                <h1 class="header-lg" id="greet">Velkommen.</h1>
+                <p class="sub-header" id="dateSub">Systemet er klart for fokus.</p>
+
+                <div class="grid-layout">
+                    <div class="zen-card" style="text-align:center;">
+                        <div class="card-head"><span class="card-title">Deep Work</span><i class="ph ph-timer"></i></div>
+                        <div class="timer-display" id="timer">25:00</div>
+                        <div class="time-controls">
+                            <div class="chip" onclick="setDuration(25)">25</div>
+                            <div class="chip" onclick="setDuration(45)">45</div>
+                            <div class="chip" onclick="setDuration(60)">60</div>
+                        </div>
+                        <button class="z-btn" id="timerBtn" onclick="toggleTimer()">START FOKUS</button>
+                        <button class="breath-btn" onclick="startBreath()"><i class="ph ph-wind"></i> PUSTEPAUSE</button>
                     </div>
-                </div>
-                <div class="grid-layout" style="margin-top: 40px;">
-                    <div class="glass-card">
-                        <h2>Klar for dagen?</h2>
-                        <p style="color:var(--text-muted);">Dine verktøy er klare.</p>
+
+                    <div class="zen-card">
+                        <div class="card-head"><span class="card-title">Ytelse</span><i class="ph ph-chart-line-up"></i></div>
+                        <div style="height:200px;"><canvas id="chart"></canvas></div>
                     </div>
                 </div>
             </section>
+
+            <section id="tasks" class="section">
+                <h1 class="header-lg">Oppgaver</h1>
+                <div class="zen-card" style="margin-top:40px; max-width:800px;">
+                    <div class="task-input-area">
+                        <input type="text" class="task-input" id="taskInput" placeholder="Ny oppgave...">
+                        <button class="add-btn" onclick="addTask()">LEGG TIL</button>
+                    </div>
+                    <div id="taskList"></div>
+                </div>
+            </section>
+
+            <section id="tools" class="section"><h1 class="header-lg">Verktøy</h1><p class="sub-header">Kommer snart.</p></section>
+            <section id="settings" class="section"><h1 class="header-lg">Innstillinger</h1><p class="sub-header">System konfigurasjon.</p></section>
+
         </main>
-        <nav class="mobile-nav"> <button style="border:none;background:none;font-size:1.5rem;color:var(--primary);"><i class="ph ph-squares-four"></i></button>
-             <button style="border:none;background:none;font-size:1.5rem;color:#ccc;"><i class="ph ph-calendar"></i></button>
+
+        <nav class="mobile-nav">
+            <button class="mob-btn active" onclick="nav('dashboard')"><i class="ph ph-squares-four"></i></button>
+            <button class="mob-btn" onclick="nav('tasks')"><i class="ph ph-check-circle"></i></button>
+            <button class="mob-btn" onclick="nav('tools')"><i class="ph ph-calculator"></i></button>
         </nav>
     </div>
 
+    <div id="breath-overlay">
+        <div class="breath-circle" id="bCircle"></div>
+        <div class="breath-label" id="bText">PUST INN</div>
+        <button class="z-btn" onclick="stopBreath()" style="width:auto; margin-top:50px; padding:10px 30px;">AVSLUTT</button>
+    </div>
 
 <script>
-    // --- NEW PRO INTRO LOGIC ---
+    // --- 1. ZENITH PARTICLES (ATMOSPHERE) ---
+    const canvas = document.getElementById('zenith-canvas');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
 
-    // Handle Avatar Upload in new intro
-    document.getElementById('proAvatarUpload').addEventListener('change', function(e) {
+    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * w; this.y = Math.random() * h;
+            this.vx = (Math.random() - 0.5) * 0.2; this.vy = (Math.random() - 0.5) * 0.2;
+            this.size = Math.random() * 2;
+            this.alpha = Math.random() * 0.5;
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            if(this.x < 0) this.x = w; if(this.x > w) this.x = 0;
+            if(this.y < 0) this.y = h; if(this.y > h) this.y = 0;
+        }
+        draw() {
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+        }
+    }
+    for(let i=0; i<80; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- 2. AUDIO ENGINE (AMBIENT + CLICK) ---
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const actx = new AudioCtx();
+    let droneOsc;
+    let audioEnabled = false;
+
+    function startDrone() {
+        if(!audioEnabled) return;
+        droneOsc = actx.createOscillator();
+        const g = actx.createGain();
+        droneOsc.type = 'sine';
+        droneOsc.frequency.value = 50; // Low frequency hum
+        g.gain.value = 0.05; // Very subtle
+        droneOsc.connect(g); g.connect(actx.destination);
+        droneOsc.start();
+    }
+
+    function playClick() {
+        if(!audioEnabled) return;
+        const osc = actx.createOscillator();
+        const g = actx.createGain();
+        osc.frequency.setValueAtTime(800, actx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, actx.currentTime + 0.05);
+        g.gain.setValueAtTime(0.1, actx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.05);
+        osc.connect(g); g.connect(actx.destination);
+        osc.start(); osc.stop(actx.currentTime + 0.05);
+    }
+
+    function toggleAudio() {
+        if(actx.state === 'suspended') actx.resume();
+        audioEnabled = !audioEnabled;
+        const btn = document.getElementById('audioBtn');
+        if(audioEnabled) {
+            btn.classList.add('active');
+            startDrone();
+        } else {
+            btn.classList.remove('active');
+            if(droneOsc) { droneOsc.stop(); droneOsc = null; }
+        }
+    }
+
+    // Connect clicks
+    document.addEventListener('click', (e) => {
+        if(e.target.tagName === 'BUTTON' || e.target.closest('button')) playClick();
+    });
+
+    // --- 3. APP LOGIC ---
+    let state = { name: "User", avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=zenith", tasks: [] };
+
+    function enterZenith() {
+        if(actx.state === 'suspended') actx.resume();
+        const n = document.getElementById('setupName').value;
+        if(n) state.name = n;
+        updateUI();
+        
+        document.getElementById('intro-screen').classList.add('hidden');
+        document.getElementById('app-shell').classList.add('visible');
+        
+        // Auto start audio if desired, or let user toggle
+        // setTimeout(() => toggleAudio(), 1000); 
+    }
+
+    document.getElementById('avatarUpload').addEventListener('change', (e) => {
         if(e.target.files[0]) {
             const r = new FileReader();
-            r.onload = (evt) => { 
-                state.avatar = evt.target.result; 
-                document.getElementById('proAvPreview').src = state.avatar;
+            r.onload = (evt) => {
+                state.avatar = evt.target.result;
+                document.getElementById('introAv').src = state.avatar;
             };
             r.readAsDataURL(e.target.files[0]);
         }
     });
 
-    // Transition sequence
-    function finalizeProLogin() {
-        const nameInput = document.getElementById('setupNamePro').value;
-        if(nameInput) state.name = nameInput;
-        
-        // Save data
-        save(); 
-        updateGlobalUI(); // Update the main app behind the scenes
-
-        // 1. Trigger exit animation on intro
-        const introScreen = document.getElementById('pro-intro-screen');
-        introScreen.classList.add('fade-out-zoom');
-
-        // 2. Wait for animation, then hide intro and reveal app
-        setTimeout(() => {
-            introScreen.style.display = 'none';
-            document.getElementById('app-shell').classList.add('visible');
-        }, 8000); // Matches animation duration (0.8s)
-    }
-
-
-    // --- EXISTING APP LOGIC (Simplified for context) ---
-    let state = { name: "Student", avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=student" };
-    if(localStorage.getItem('UltOS')) { state = JSON.parse(localStorage.getItem('UltOS')); }
-
-    function save() { localStorage.setItem('UltOS', JSON.stringify(state)); }
-
-    function updateGlobalUI() {
+    function updateUI() {
         const hr = new Date().getHours();
-        let gt = hr < 12 ? "God morgen" : hr < 18 ? "God ettermiddag" : "God kveld";
-        document.getElementById('greet').innerText = `${gt}, ${state.name}`;
+        let greeting = hr < 12 ? "God morgen" : hr < 18 ? "God ettermiddag" : "God kveld";
+        document.getElementById('greet').innerHTML = `${greeting}, <span style="font-weight:600">${state.name}</span>.`;
+        document.getElementById('miniName').innerText = state.name;
+        document.getElementById('miniAv').src = state.avatar;
         
-        // If user already has data, pre-fill the new intro
-        if(state.name !== "Student") document.getElementById('setupNamePro').value = state.name;
-        document.getElementById('proAvPreview').src = state.avatar;
+        const dateOpt = { weekday: 'long', month: 'long', day: 'numeric' };
+        document.getElementById('dateSub').innerText = "I dag er det " + new Date().toLocaleDateString('no-NO', dateOpt);
     }
 
-    // Initialize
-    window.onload = function() {
-        updateGlobalUI();
-    };
+    function nav(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        if(event) event.currentTarget.classList.add('active');
+    }
+
+    // --- TASKS ---
+    function addTask() {
+        const v = document.getElementById('taskInput').value;
+        if(!v) return;
+        state.tasks.push({id: Date.now(), txt: v});
+        renderTasks();
+        document.getElementById('taskInput').value = "";
+    }
+    function removeTask(id) {
+        state.tasks = state.tasks.filter(t => t.id !== id);
+        renderTasks();
+    }
+    function renderTasks() {
+        const l = document.getElementById('taskList'); l.innerHTML = "";
+        state.tasks.forEach(t => {
+            l.innerHTML += `
+            <div class="task-item">
+                <div class="task-text">${t.txt}</div>
+                <div class="task-actions"><button onclick="removeTask(${t.id})"><i class="ph ph-check"></i></button></div>
+            </div>`;
+        });
+    }
+
+    // --- TIMER & BREATH ---
+    let tTime = 1500; let tInt;
+    function setDuration(m) { tTime = m*60; document.getElementById('timer').innerText = `${m}:00`; }
+    function toggleTimer() {
+        const b = document.getElementById('timerBtn');
+        if(tInt) { clearInterval(tInt); tInt = null; b.innerText = "START FOKUS"; }
+        else {
+            b.innerText = "PAUSE";
+            tInt = setInterval(() => {
+                tTime--; let m = Math.floor(tTime/60); let s = tTime%60;
+                document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+                if(tTime<=0) clearInterval(tInt);
+            }, 1000);
+        }
+    }
+
+    let bInt;
+    function startBreath() {
+        document.getElementById('breath-overlay').classList.add('active');
+        const c = document.getElementById('bCircle');
+        const t = document.getElementById('bText');
+        
+        function cycle() {
+            t.innerText = "PUST INN"; c.style.animation = "zenInhale 4s ease-in-out forwards";
+            setTimeout(() => { t.innerText = "PUST UT"; c.style.animation = "zenExhale 4s ease-in-out forwards"; }, 4000);
+        }
+        cycle();
+        bInt = setInterval(cycle, 8000);
+    }
+    function stopBreath() {
+        document.getElementById('breath-overlay').classList.remove('active');
+        clearInterval(bInt);
+    }
+
+    // Chart
+    new Chart(document.getElementById('chart'), {
+        type: 'line',
+        data: { labels: ['M','T','O','T','F'], datasets: [{ label:'Fokus', data:[60,80,40,90,75], borderColor:'#3b82f6', tension:0.4, fill:true, backgroundColor:'rgba(59,130,246,0.1)' }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{display:false, grid:{display:false}}, y:{display:false, grid:{display:false}}} }
+    });
+
 </script>
 </body>
 </html>
